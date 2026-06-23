@@ -54,4 +54,4 @@ jobs:
           docker info || true
 
       - name: Done
-        run: echo 'Copilot setup steps completed.'
+        run: echo 'Copilot setup steps completed. [trigger]'}
