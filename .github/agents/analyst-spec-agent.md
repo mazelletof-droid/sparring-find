@@ -1,3 +1,9 @@
+---
+name: "analyst-spec-agent"
+description: "Project-specialist interactive analyst agent for the Sparring Finder project"
+location: ".github/agents/analyst-spec-agent.md"
+---
+
 # Analyst Agent: project-specialist interactive agent (analyst-spec-writer)
 
 Purpose
