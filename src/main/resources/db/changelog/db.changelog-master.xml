@@ -99,4 +99,6 @@
 
     </changeSet>
 
+    <include file="db/changelog/2026-06-23-add-password-hash.xml"/>
+
 </databaseChangeLog>
