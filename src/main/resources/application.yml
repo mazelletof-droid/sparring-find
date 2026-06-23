@@ -29,7 +29,6 @@ management:
         enabled: true
         endpoint: "${OTEL_OTLP_ENDPOINT:http://localhost:4317}"
 
-spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
