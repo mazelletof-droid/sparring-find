@@ -4,7 +4,7 @@ Overview
 This file breaks the spec (spec.md) into implementable development tasks, grouped by epic, with priority, estimate, and dependencies. Use task IDs when creating issues or todos.
 
 1. AUTH & REGISTRATION (auth)
-- auth-01: Implement local registration API (/api/v1/auth/register). Priority: High. Estimate: 2d. Dependencies: DB user model, KeycloakAdminService. Acceptance: spec.md - Auth & Registration.
+- auth-01: Implement local registration API (/api/v1/auth/register). Priority: High. Estimate: 2d. Dependencies: DB user model, KeycloakAdminService. Acceptance: spec.md - Auth & Registration. Status: DONE
 - auth-02: Implement password hashing (bcrypt) and validation. Priority: High. Estimate: 0.5d.
 - auth-03: Add Keycloak provisioning wrapper (idempotent create/update). Priority: High. Estimate: 1.5d. Dependencies: Keycloak admin client config.
 - auth-04: Unit tests for registration flow (+ Keycloak mock). Priority: High. Estimate: 1d.
