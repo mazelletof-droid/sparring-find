@@ -4,7 +4,7 @@ Purpose
 - A reusable, interactive analyst agent specialized for the Sparring Finder project. It is preloaded with project-specific context so it can ask targeted clarifying questions and produce precise, maintainable artifacts (specs, changesets, DTOs, tests).
 
 Location
-- .copilot\analyst-agent\analyst-spec-agent.md
+- .github\agents\analyst-spec-agent.md
 
 Embedded project context (KEY_CONTEXT) — the agent must use this as authoritative unless the user overrides:
 - Language & framework: Java 21, Spring Boot 3.2.x (Maven)
@@ -42,7 +42,7 @@ Interactive example session
 - User: "Generate" -> agent shows 3-line summary, asks to save and commit
 
 Persistence & usage
-- To run via this assistant: say "Start analyst-spec-writer agent using .copilot/analyst-agent/analyst-spec-agent.md". The assistant will open an interactive session with the agent.
+- To run via this assistant: say "Start analyst-spec-writer agent using .github/agents/analyst-spec-agent.md". The assistant will open an interactive session with the agent.
 - To automate: use this file contents as the prompt for a general-purpose agent and implement an interactive loop for answers. Use mode: interactive, reasoning_effort: high, context_tier: long_context.
 
 File operations
@@ -53,4 +53,3 @@ Maintenance
 - Update KEY_CONTEXT in this file when project infra or major components change (DB, Keycloak, storage).
 - Use this agent repeatedly for maintenance tasks and incremental spec updates.
 
-If you'd like, I'll now create/overwrite .copilot\analyst-agent\analyst-spec-agent.md with this content and remove or archive older seed files. Proceed? (Yes/No)
