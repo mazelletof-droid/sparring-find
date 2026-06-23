@@ -1,0 +1,57 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    # Snapshot produces an environment snapshot used by Copilot cloud agent.
+    snapshot: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Java 21 (Temurin) and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Setup Node.js 20 and npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Playwright browsers
+        # Use npx so we don't require a package.json in the repository.
+        run: |
+          echo "Installing Playwright browsers (may require network access)"
+          npx -y playwright install --with-deps
+
+      - name: Verify tools
+        run: |
+          java -version
+          mvn -v
+          node -v
+          npx playwright --version || true
+
+      - name: Verify Docker availability
+        run: |
+          echo "Checking Docker availability for Testcontainers"
+          docker info || true
+
+      - name: Done
+        run: echo 'Copilot setup steps completed.'

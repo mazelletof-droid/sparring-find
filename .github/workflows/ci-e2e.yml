@@ -1,0 +1,64 @@
+name: "CI - E2E Tests"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Java 21 (Temurin) and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Playwright browsers
+        run: |
+          echo "Installing Playwright browsers"
+          npx -y playwright install --with-deps
+
+      - name: Verify Docker availability (required for Testcontainers)
+        run: |
+          echo "Checking Docker"
+          docker info || (echo 'Docker not available' && exit 1)
+
+      - name: Run unit, integration and E2E tests
+        env:
+          MAVEN_OPTS: -Xmx2g
+        run: |
+          # Run verify which executes unit tests (Surefire) and integration tests (Failsafe)
+          mvn -B -U -DskipTests=false -Dplaywright.install=true verify
+
+      - name: Upload test reports (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports/**
+            target/failsafe-reports/**

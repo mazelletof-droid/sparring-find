@@ -1,0 +1,53 @@
+name: "Run E2E (manual)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Java 21 and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Playwright browsers
+        run: |
+          echo "Installing Playwright browsers"
+          npx -y playwright install --with-deps
+
+      - name: Verify Docker availability
+        run: |
+          echo "Checking Docker"
+          docker info || (echo 'Docker not available' && exit 1)
+
+      - name: Run E2E
+        env:
+          MAVEN_OPTS: -Xmx2g
+        run: |
+          mvn -B -U -Dplaywright.install=true verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-reports
+          path: |
+            target/surefire-reports/**
+            target/failsafe-reports/**
