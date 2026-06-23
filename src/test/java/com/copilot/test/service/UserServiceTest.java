@@ -3,6 +3,7 @@ package com.copilot.test.service;
 import com.copilot.test.domain.User;
 import com.copilot.test.dto.RegisterRequest;
 import com.copilot.test.repository.UserRepository;
+import com.copilot.test.repository.ProfileRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +36,7 @@ class UserServiceTest {
         req.setEmail("alice@example.com");
         req.setPassword("secret");
 
-        when(keycloakAdminService.createUser(anyString(), eq("alice"), eq("alice@example.com"), eq("secret")))
+        when(keycloakAdminService.createUser(any(), eq("alice"), eq("alice@example.com"), eq("secret")))
                 .thenReturn("kc-123");
 
         ArgumentCaptor<User> savedCaptor = ArgumentCaptor.forClass(User.class);

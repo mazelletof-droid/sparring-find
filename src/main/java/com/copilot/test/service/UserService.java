@@ -1,8 +1,10 @@
 package com.copilot.test.service;
 
 import com.copilot.test.domain.User;
+import com.copilot.test.domain.Profile;
 import com.copilot.test.dto.RegisterRequest;
 import com.copilot.test.repository.UserRepository;
+import com.copilot.test.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,7 @@ public class UserService {
     private final KeycloakAdminService keycloakAdminService;
 
     @Value("${keycloak.user.realm:sparring}")
-    private String userRealm;
+    private String userRealm = "sparring";
 
     public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeycloakAdminService keycloakAdminService) {
         this.userRepository = userRepository;

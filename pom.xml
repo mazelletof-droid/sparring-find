@@ -91,6 +91,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
             <optional>true</optional>
         </dependency>
 
@@ -147,7 +148,7 @@
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.6.4</version>
+            <version>9.0.3</version>
         </dependency>
 
         <!-- Keycloak admin client for provisioning users -->
@@ -155,6 +156,12 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
             <version>21.1.1</version>
+        </dependency>
+
+        <!-- Bean validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
     </dependencies>
@@ -172,7 +179,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.26</version>
+                            <version>1.18.28</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
