@@ -1,0 +1,49 @@
+name: "CI - E2E (Playwright Docker)"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    # Run the job inside the official Playwright container so browsers are preinstalled.
+    # The container provides Node + browsers; we install Java via actions/setup-java inside it.
+    container:
+      image: mcr.microsoft.com/playwright:latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Run Playwright E2E (skip integration tests)
+        env:
+          MAVEN_OPTS: -Xmx2g
+        run: |
+          # Skip ITs (Testcontainers) to avoid needing Docker in the runner; run only the Playwright E2E test
+          mvn -B -U -DskipITs -Dplaywright.install=false -Dtest=PlaywrightE2EIT test
+
+      - name: Upload E2E reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports
+          path: |
+            target/surefire-reports/**
+            target/failsafe-reports/**
