@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparring-finder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sparring-finder
+  template:
+    metadata:
+      labels:
+        app: sparring-finder
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/${{ github.repository_owner }}/sparring-finder:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: sparring-finder-config
+            - secretRef:
+                name: sparring-finder-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20

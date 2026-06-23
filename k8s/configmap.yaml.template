@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sparring-finder-config
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  # Example application properties that can be set via k8s config map
+  application.yml: |
+    spring:
+      datasource:
+        url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/sparring}

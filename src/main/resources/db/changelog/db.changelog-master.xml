@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="000-sequences" author="copilot">
+        <createSequence sequenceName="seq_users" startValue="1"/>
+        <createSequence sequenceName="seq_profiles" startValue="1"/>
+        <createSequence sequenceName="seq_sports" startValue="1"/>
+        <createSequence sequenceName="seq_availability_slots" startValue="1"/>
+        <createSequence sequenceName="seq_messages" startValue="1"/>
+        <createSequence sequenceName="seq_ratings" startValue="1"/>
+        <createSequence sequenceName="seq_photos" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="001-create-sparring-schema" author="copilot">
+
+        <createTable tableName="users">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_users"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="profiles">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_profiles"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="VARCHAR(200)"/>
+            <column name="bio" type="VARCHAR(2000)"/>
+            <column name="lat" type="DOUBLE PRECISION"/>
+            <column name="lon" type="DOUBLE PRECISION"/>
+            <column name="skill_level" type="VARCHAR(50)"/>
+        </createTable>
+
+        <createIndex indexName="idx_profiles_user_id" tableName="profiles">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createTable tableName="sports">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_sports"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="availability_slots">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_availability"/>
+            </column>
+            <column name="profile_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP"/>
+            <column name="end_time" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="messages">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_messages"/>
+            </column>
+            <column name="sender_profile_id" type="BIGINT"/>
+            <column name="recipient_profile_id" type="BIGINT"/>
+            <column name="sent_at" type="TIMESTAMP"/>
+            <column name="body" type="VARCHAR(4000)"/>
+        </createTable>
+
+        <createTable tableName="ratings">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_ratings"/>
+            </column>
+            <column name="profile_id" type="BIGINT"/>
+            <column name="rater_profile_id" type="BIGINT"/>
+            <column name="score" type="INT"/>
+            <column name="comment" type="VARCHAR(1000)"/>
+        </createTable>
+
+        <createTable tableName="photos">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_photos"/>
+            </column>
+            <column name="profile_id" type="BIGINT"/>
+            <column name="path" type="VARCHAR(1024)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

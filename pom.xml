@@ -135,6 +135,21 @@
             <version>1.40.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Liquibase for DB migrations -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>4.23.1</version>
+        </dependency>
+
+        <!-- S3-compatible storage client (MinIO / AWS S3) - optional at runtime -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.6.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -28,3 +28,19 @@ management:
       otlp:
         enabled: true
         endpoint: "${OTEL_OTLP_ENDPOINT:http://localhost:4317}"
+
+liquibase:
+  change-log: classpath:db/changelog/db.changelog-master.xml
+
+s3:
+  enabled: true
+  endpoint: ${S3_ENDPOINT:http://localhost:9000}
+  bucket: ${S3_BUCKET:sparring-photos}
+  access-key: ${S3_ACCESS_KEY:minioadmin}
+  secret-key: ${S3_SECRET_KEY:minioadmin}
+
+keycloak:
+  issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/sparring}
+  client-id: ${KEYCLOAK_CLIENT_ID:spa-client}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:}
+
