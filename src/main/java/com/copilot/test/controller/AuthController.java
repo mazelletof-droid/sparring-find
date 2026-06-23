@@ -2,6 +2,10 @@ package com.copilot.test.controller;
 
 import com.copilot.test.dto.RegisterRequest;
 import com.copilot.test.domain.User;
+import com.copilot.test.domain.Profile;
+import com.copilot.test.dto.UserResponse;
+import com.copilot.test.dto.ProfileResponse;
+import com.copilot.test.dto.RegisterRequest;
 import com.copilot.test.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +26,35 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest req) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest req) {
         User created = userService.register(req);
-        return ResponseEntity.ok(created);
+        Profile profile = userService.getProfileForUser(created.getId());
+
+        UserResponse ur = toUserResponse(created);
+        ProfileResponse pr = toProfileResponse(profile);
+        // For now return user; can wrap both in a composite response if needed
+        return ResponseEntity.ok(ur);
+    }
+
+    private UserResponse toUserResponse(User u) {
+        UserResponse r = new UserResponse();
+        r.setId(u.getId());
+        r.setUsername(u.getUsername());
+        r.setEmail(u.getEmail());
+        r.setAuthServerId(u.getAuthServerId());
+        return r;
+    }
+
+    private ProfileResponse toProfileResponse(Profile p) {
+        if (p == null) return null;
+        ProfileResponse pr = new ProfileResponse();
+        pr.setId(p.getId());
+        pr.setUserId(p.getUserId());
+        pr.setDisplayName(p.getDisplayName());
+        pr.setBio(p.getBio());
+        pr.setLat(p.getLat());
+        pr.setLon(p.getLon());
+        pr.setSkillLevel(p.getSkillLevel());
+        return pr;
     }
 }

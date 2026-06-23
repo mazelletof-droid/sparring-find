@@ -39,8 +39,14 @@ public class UserService {
         Profile profile = new Profile();
         profile.setUserId(saved.getId());
         profile.setDisplayName(req.getDisplayName() != null ? req.getDisplayName() : req.getUsername());
-        profileRepository.save(profile);
+        Profile savedProfile = profileRepository.save(profile);
 
         return saved;
     }
+
+    @Transactional(readOnly = true)
+    public Profile getProfileForUser(Long userId) {
+        return profileRepository.findAll().stream().filter(p -> p.getUserId().equals(userId)).findFirst().orElse(null);
+    }
 }
+
