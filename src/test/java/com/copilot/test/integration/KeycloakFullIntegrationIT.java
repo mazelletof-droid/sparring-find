@@ -116,7 +116,7 @@ public class KeycloakFullIntegrationIT {
         HttpEntity<RegisterRequest> entity = new HttpEntity<>(req, headers);
 
         String url = "http://localhost:" + port + "/api/v1/auth/register";
-        ResponseEntity<String> resp = restTemplate.postForEntity(url, entity, String.class);
+        ResponseEntity<RegistrationResponse> resp = restTemplate.postForEntity(url, entity, RegistrationResponse.class);
 
         assertThat(resp.getStatusCode().is2xxSuccessful()).isTrue();
 
@@ -124,6 +124,12 @@ public class KeycloakFullIntegrationIT {
         User u = userRepository.findByUsername("fullbob").orElseThrow();
         assertThat(u.getAuthServerId()).isNotNull();
         assertThat(profileRepository.findAll().stream().anyMatch(p -> p.getUserId().equals(u.getId()))).isTrue();
+
+        // verify response
+        RegistrationResponse body = resp.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.getUser().getUsername()).isEqualTo("fullbob");
+        assertThat(body.getProfile().getDisplayName()).isEqualTo("Full Bob");
 
         // verify user exists in Keycloak
         boolean exists = kcAdmin.realm("sparring").users().search("fullbob").stream().anyMatch(r -> r.getUsername().equals("fullbob"));

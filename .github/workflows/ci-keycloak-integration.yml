@@ -1,0 +1,44 @@
+name: CI - Keycloak full integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  keycloak-integration:
+    # Requires a self-hosted runner with Docker available (label accordingly).
+    runs-on: [self-hosted, linux]
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Verify Docker available
+        run: |
+          docker info || (echo 'Docker is required on this runner for Keycloak integration tests' && exit 1)
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Run integration tests (Keycloak + Postgres)
+        env:
+          MAVEN_OPTS: -Xmx2g
+        run: |
+          mvn -B -U -DskipTests=false verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: |
+            target/surefire-reports/**
+            target/failsafe-reports/**

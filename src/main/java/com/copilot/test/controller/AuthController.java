@@ -26,14 +26,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest req) {
+    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegisterRequest req) {
         User created = userService.register(req);
         Profile profile = userService.getProfileForUser(created.getId());
 
         UserResponse ur = toUserResponse(created);
         ProfileResponse pr = toProfileResponse(profile);
-        // For now return user; can wrap both in a composite response if needed
-        return ResponseEntity.ok(ur);
+
+        RegistrationResponse resp = new RegistrationResponse();
+        resp.setUser(ur);
+        resp.setProfile(pr);
+        return ResponseEntity.ok(resp);
     }
 
     private UserResponse toUserResponse(User u) {

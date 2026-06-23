@@ -72,7 +72,7 @@ public class RegistrationIntegrationIT {
         HttpEntity<RegisterRequest> entity = new HttpEntity<>(req, headers);
 
         String url = "http://localhost:" + port + "/api/v1/auth/register";
-        ResponseEntity<User> resp = restTemplate.postForEntity(url, entity, User.class);
+        ResponseEntity<RegistrationResponse> resp = restTemplate.postForEntity(url, entity, RegistrationResponse.class);
 
         assertThat(resp.getStatusCode().is2xxSuccessful()).isTrue();
 
@@ -80,5 +80,11 @@ public class RegistrationIntegrationIT {
         User u = userRepository.findByUsername("intbob").orElseThrow();
         assertThat(u.getAuthServerId()).isEqualTo("kc-999");
         assertThat(profileRepository.findAll().stream().anyMatch(p -> p.getUserId().equals(u.getId()))).isTrue();
+
+        // verify response body
+        RegistrationResponse body = resp.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.getUser().getUsername()).isEqualTo("intbob");
+        assertThat(body.getProfile().getDisplayName()).isEqualTo("Int Bob");
     }
 }
