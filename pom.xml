@@ -150,6 +150,13 @@
             <version>8.6.4</version>
         </dependency>
 
+        <!-- Keycloak admin client for provisioning users -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>21.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
