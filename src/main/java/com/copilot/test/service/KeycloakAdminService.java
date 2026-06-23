@@ -29,17 +29,45 @@ public class KeycloakAdminService {
     @Value("${keycloak.admin.client-secret:}")
     private String clientSecret;
 
+    @Value("${keycloak.admin.username:}")
+    private String adminUsername;
+
+    @Value("${keycloak.admin.password:}")
+    private String adminPassword;
+
     private Keycloak keycloak;
+
+    // Allow injection for tests
+    public KeycloakAdminService() {
+    }
+
+    // Constructor for injecting a pre-built Keycloak client (useful for tests or integration setups)
+    public KeycloakAdminService(Keycloak keycloak) {
+        this.keycloak = keycloak;
+    }
 
     @PostConstruct
     public void init() {
+        if (this.keycloak != null) {
+            // already provided (e.g., in tests)
+            return;
+        }
+
         KeycloakBuilder builder = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(adminRealm)
-                .clientId(clientId)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS);
-        if (clientSecret != null && !clientSecret.isEmpty()) {
-            builder.clientSecret(clientSecret);
+                .clientId(clientId);
+
+        // Prefer password grant if admin username/password provided (useful for testcontainers)
+        if (adminUsername != null && !adminUsername.isEmpty() && adminPassword != null && !adminPassword.isEmpty()) {
+            builder.grantType(OAuth2Constants.PASSWORD)
+                    .username(adminUsername)
+                    .password(adminPassword);
+        } else {
+            builder.grantType(OAuth2Constants.CLIENT_CREDENTIALS);
+            if (clientSecret != null && !clientSecret.isEmpty()) {
+                builder.clientSecret(clientSecret);
+            }
         }
         this.keycloak = builder.build();
     }

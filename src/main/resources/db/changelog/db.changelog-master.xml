@@ -27,7 +27,8 @@
             <column name="email" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-        </createTable>
+                    <column name="auth_server_id" type="VARCHAR(200)"/>
+                </createTable>
 
         <createTable tableName="profiles">
             <column name="id" type="BIGINT">
