@@ -1,67 +1,72 @@
 # Copilot instructions for this repository
 
 Purpose
-- Provide concise, machine-actionable info so Copilot sessions can assist efficiently with this Spring Boot project.
+- Machine-actionable guidance so Copilot cloud or local sessions can build, test and reason about this Spring Boot project.
 
-1) Build, test, and lint commands
-- Build: mvn -U package
-- Run locally: mvn spring-boot:run
-- Full unit test suite: mvn test
-- Single unit test (class): mvn -Dtest=MyTestClass test
-- Single unit test (method): mvn -Dtest=MyTestClass#myTestMethod test
-- Run integration tests (ITs picked up by Failsafe): mvn failsafe:integration-test failsafe:verify
-- Run both unit + integration: mvn verify
-- Run E2E Playwright tests (may require browser binaries installed): mvn -Dplaywright.install=true -Dtest=PlaywrightE2EIT test
-- Run with a profile: mvn -Dspring-boot.run.profiles=dev spring-boot:run
-- Lint/format: no dedicated linter configured by default. If Checkstyle/Spotless/Sonar are added, mirror commands from pom.xml (e.g., mvn checkstyle:check).
+1) Build, test, and lint (quick commands)
+- Build artifact: mvn -U package
+- Run app locally: mvn spring-boot:run
+- Run unit tests only (Surefire): mvn -B -U test
+- Run a single test class: mvn -Dtest=MyTestClass test
+- Run a single test method: mvn -Dtest=MyTestClass#myTestMethod test
+- Run integration tests (Failsafe; *IT.java): mvn -B -U failsafe:integration-test failsafe:verify
+- Run unit + integration (full verification): mvn -B -U verify
+- Run E2E (Playwright) locally via helper: .\run-e2e.ps1 [-SkipBrowserInstall]
+  - Or with Maven only: mvn -Dplaywright.install=true -DskipTests=false verify
+- Install Playwright browsers (if Node available): npx -y playwright install --with-deps
+- Lint/format: no dedicated linter in pom.xml. If added, expose the plugin goals here.
 
-2) High-level architecture
-- Runtime: Java 21, Spring Boot (Maven)
-- Monolith service with these roles:
-  - REST API (spring-boot-starter-web)
-  - Data persistence (spring-boot-starter-data-jpa)
-  - Security / OIDC client + resource-server (spring-boot-starter-security, oauth2)
-  - Optional GraphQL API (spring-boot-starter-graphql)
-  - OpenAPI UI via springdoc (springdoc-openapi-starter-webmvc-ui)
-- Entrypoint: src/main/java/com/copilot/test/SparringFinderApplication.java
-- Config: src/main/resources/application.yml (env vars override)
-- Dev DB: H2 in-memory (development only)
-- Build outputs: target/
+2) High-level architecture (big picture)
+- Language/runtime: Java 21, Spring Boot 3.x, Maven build.
+- Layers:
+  - Web: spring-boot-starter-web exposes REST controllers.
+  - Persistence: spring-boot-starter-data-jpa (H2 for dev; Testcontainers for ITs).
+  - Security: Spring Security + OAuth2/OIDC (client + resource-server starters included).
+  - API docs: springdoc OpenAPI with Swagger UI at /swagger-ui/index.html.
+  - Optional GraphQL support is present via spring-boot-starter-graphql.
+- Entry point: src/main/java/com/copilot/test/SparringFinderApplication.java
+- Configuration: src/main/resources/application.yml (override with environment variables in CI).
 
-3) Key conventions (project-specific)
-- Packages: com.copilot.test.{controller,service,repository,domain,dto,config}
-- Services:
-  - Do not accept or return JPA entity instances on public service method signatures. Use DTOs for input/output.
-  - All public service methods are @Transactional by default (use the appropriate propagation/isolation as needed).
-  - Service methods should not return entities to avoid unmanaged/lazy-loading issues outside transactional boundaries.
+3) Key conventions and repo-specific patterns
+- Package layout: com.copilot.test.{controller,service,repository,domain,dto,config}
+- DTO-first services:
+  - Public service APIs accept/return DTOs only — do not expose JPA entities across service boundaries.
+  - Use MapStruct mappers for conversions (mapstruct configured in pom.xml).
+- Transactions & lifecycle:
+  - Public service methods should be @Transactional; avoid returning entities from transactional methods.
 - Method size & docs:
-  - Prefer methods ≤ 20 lines; max 50 lines only when no reasonable refactor exists.
-  - Every public method must include a short Javadoc explaining purpose, params, and return value.
-- Mapping: use MapStruct mappers for entity↔DTO conversions.
-- Config precedence: application.yml → environment variables → CI secrets
-- OpenAPI: springdoc provides Swagger UI at /swagger-ui/index.html
-- Generated/build files: never edit files under target/
-- Testcontainers: integration tests use Testcontainers; ensure Docker is running when running ITs locally or in CI.
-- Playwright: E2E tests use Playwright for Java. Browsers may need to be installed in CI or locally. Common options:
-  - Locally: run mvn -Dplaywright.install=true test once to trigger browser install (or install via Node.js: npx playwright install --with-deps if Node is available).
-  - CI: add a step to install Playwright browsers before running the E2E test (e.g., run npx playwright install --with-deps or use the Playwright Docker image).
-- Quality: adhere to Sonar quality rules (blocker/critical issues fixed before merge); ensure unit tests cover business logic.
+  - Prefer methods ≤ 20 lines (allowed to 50 with justification).
+  - All public methods require Javadoc describing behavior, params, and return.
+- Tests:
+  - Unit tests run via Surefire; integration tests are named *IT.java and executed by Failsafe.
+  - DatabaseIntegrationIT uses Testcontainers (PostgreSQL container). Docker must be available in environment.
+  - PlaywrightE2EIT uses Playwright Java and spins a browser to assert the Swagger UI loads. Browser binaries must be present.
+- CI expectations:
+  - CI workflows are under .github/workflows. Unit CI (`CI - Unit Tests`) runs mvn test. E2E CI (`CI - E2E Tests`) installs Playwright browsers, requires Docker and runs mvn verify.
 
-4) Docs & assistant configs
-- No README/CONTRIBUTING/assistant config detected at file creation time. If added, copy short runtime/start/CI snippets here.
+4) Useful patterns for Copilot sessions
+- When asked to run tests, prefer: mvn -B -U -DskipTests=false verify for full validation; use -Dtest to limit scope during iteration.
+- For debugging failing ITs, capture target/failsafe-reports and the Playwright browser install logs.
+- Avoid editing generated files under target/; regenerate from source if needed.
 
-5) Quick troubleshooting
-- H2 console: /h2-console while running locally
-- Dev run: mvn -Dspring-boot.run.profiles=dev spring-boot:run
+5) Housekeeping & known issues
+- Repo currently contains build outputs (target/) including a ~70MB jar committed. Recommended actions:
+  - Add target/ to .gitignore and remove the large file from history (git rm --cached target/sparring-finder-0.0.1-SNAPSHOT.jar && commit + push), or enable Git LFS for large artifacts.
+- Testcontainers on Windows may require Docker Desktop (WSL2) and correct permissions. If Docker is unavailable, skip ITs with -DskipITs or run with a profile that disables integration tests.
+- Playwright browser downloads can fail behind proxies; use the copilot-setup-steps.yml snapshot (preinstalled) or run npx install behind your proxy.
 
-Using the Copilot cloud agent
-- copilot-setup-steps.yml is present and preinstalls Java 21, Node 20 and Playwright browsers so the Copilot cloud agent can build and run tests reliably.
-- To run E2E tests via the agent, request a Copilot session or run the CI workflow `CI - E2E Tests` (manually from Actions). The agent will use the setup snapshot and can execute:
-  - mvn -Dplaywright.install=true verify
-  - or run the `CI - E2E Tests` workflow (which runs mvn verify) from GitHub Actions.
-- Requirements: Docker available to Testcontainers; network access to download Playwright browsers (or preinstalled via setup steps).
+6) Copilot cloud agent specifics
+- .github/workflows/copilot-setup-steps.yml is present and creates a snapshot with Java 21, Node 20, and Playwright browsers preinstalled — sessions using Copilot cloud agent should be able to run mvn verify and E2E workflows without extra setup.
+- To run the manual E2E workflow: open Actions → Run E2E (Run E2E (manual) workflow) or run the `CI - E2E Tests` workflow.
+
+7) Where to look (entry points)
+- Main: src/main/java/com/copilot/test/SparringFinderApplication.java
+- Integration tests: src/test/java/com/copilot/test/integration/DatabaseIntegrationIT.java
+- E2E tests: src/test/java/com/copilot/test/e2e/PlaywrightE2EIT.java
+- Local E2E helper: run-e2e.ps1
+- CI workflows: .github/workflows/*.yml
 
 Keeping this file accurate
-- Update Build/Test/Lint commands and the architecture/conventions when changing pom.xml, CI, or packages.
+- Update commands and CI notes when pom.xml, workflows, or package layout change.
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
