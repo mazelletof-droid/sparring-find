@@ -20,6 +20,9 @@ class UserServiceTest {
     UserRepository userRepository;
 
     @Mock
+    ProfileRepository profileRepository;
+
+    @Mock
     KeycloakAdminService keycloakAdminService;
 
     @InjectMocks
@@ -42,6 +45,9 @@ class UserServiceTest {
         saved.setEmail("alice@example.com");
         saved.setAuthServerId("kc-123");
         when(userRepository.save(savedCaptor.capture())).thenReturn(saved);
+
+        // mock profile save
+        when(profileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         User result = userService.register(req);
 

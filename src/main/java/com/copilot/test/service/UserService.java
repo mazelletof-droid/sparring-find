@@ -11,13 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final KeycloakAdminService keycloakAdminService;
 
     @Value("${keycloak.user.realm:sparring}")
     private String userRealm;
 
-    public UserService(UserRepository userRepository, KeycloakAdminService keycloakAdminService) {
+    public UserService(UserRepository userRepository, ProfileRepository profileRepository, KeycloakAdminService keycloakAdminService) {
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
         this.keycloakAdminService = keycloakAdminService;
     }
 
@@ -31,7 +33,14 @@ public class UserService {
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
         user.setAuthServerId(kcId); // auth server id (Keycloak) saved for correlation
+        User saved = userRepository.save(user);
 
-        return userRepository.save(user);
+        // create profile
+        Profile profile = new Profile();
+        profile.setUserId(saved.getId());
+        profile.setDisplayName(req.getDisplayName() != null ? req.getDisplayName() : req.getUsername());
+        profileRepository.save(profile);
+
+        return saved;
     }
 }
